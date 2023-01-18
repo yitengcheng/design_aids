@@ -1,0 +1,11 @@
+.titleBox {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  font-size: 200%;
+  color: #186cff;
+  padding: 10px;
+  border-bottom: 1px solid #f3f3f3;
+  height: 5vh;
+  margin-bottom: 3vh;
+}

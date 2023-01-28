@@ -9,3 +9,4 @@ export const ENGINE_KERNEL = [
   { label: "火狐内核", value: 1 },
   { label: "谷歌内核", value: 2 },
 ];
+export const ENGINE_KERNEL_MENU = [{ "model.Firefox.open_browser": {} }, { "model.Chrome.open_browser": {} }];

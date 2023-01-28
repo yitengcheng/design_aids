@@ -29,10 +29,14 @@ const createWindow = () => {
     }))
   */
   // 加载应用----适用于 react 项目
-  mainWindow.loadURL("http://localhost:8080/");
+  if (app.isPackaged) {
+    mainWindow.loadFile("build/index.html");
+  } else {
+    mainWindow.loadURL("http://localhost:8080/");
+  }
 
   // 打开开发者工具，默认不打开
-  // mainWindow.webContents.openDevTools()
+  mainWindow.webContents.openDevTools();
 
   // 关闭window时触发下列事件.
   mainWindow.on("closed", function () {

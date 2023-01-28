@@ -4,24 +4,20 @@ import React, { useEffect } from "react";
 import useStateRef from "react-usestateref";
 import apis from "../../apis";
 import { post } from "../../axios";
-import { ENGINE_KERNEL } from "../../constant";
+import { ENGINE_KERNEL, ENGINE_KERNEL_MENU } from "../../constant";
 import FormInput from "../form/FormInput";
 import FormSelect from "../form/FormSelect";
 import lodash from "lodash";
+import _ from "lodash";
 
 const ScriptMenuDetail = (props) => {
-  const { closeModal, detail, project } = props;
+  const { detail } = props;
   const [detailForm] = Form.useForm();
 
   useEffect(() => {
     detail && detailForm.setFieldsValue({ name: detail?.name, remark: detail?.remark });
+    initForm();
   }, [detail, detailForm]);
-  useEffect(() => {
-    async function fetchData() {
-      project && (await initMenu());
-    }
-    fetchData();
-  }, [project]);
 
   const handle = () => {
     detailForm.validateFields().then((values) => {
@@ -29,26 +25,50 @@ const ScriptMenuDetail = (props) => {
       lodash.map(values.menus, (item) => {
         data.push({ name: item?.name, action: item?.action, icon: item?.icon });
       });
-      post(apis.generateMenu, { engineKernel: values?.engineKernel, menus: data, project: project?._id }).then(
-        (res) => {
-          detailForm.resetFields();
-          closeModal && closeModal();
-          Modal.confirm({
-            title: "提示",
-            content: "是否前往进行预览",
-            okText: "预览",
-            cancelText: "不了，谢谢",
-            onOk: () => {
-              window.open(res?.url, "_blank");
-            },
-          });
-        }
-      );
+      const file = window.node.join("/public/project");
+      if (!window.node.existsSync(`${file}/config`)) {
+        window.node.mkdirSync(`${file}/config`);
+      }
+      if (!window.node.existsSync(`${file}/config/auto_flow`)) {
+        window.node.mkdirSync(`${file}/config/auto_flow`);
+      }
+      if (!window.node.existsSync(`${file}/config/view`)) {
+        window.node.mkdirSync(`${file}/config/view`);
+      }
+      if (!window.node.existsSync(`${file}/script`)) {
+        window.node.mkdirSync(`${file}/script`);
+      }
+      let tmp = [];
+      for (const menu of values?.menus) {
+        tmp.push({ name: menu?.name, action: menu?.action, icon: menu?.icon ?? "working.png" });
+        window.node.writeFileSync(`${file}/config/auto_flow/${menu?.action}.json`, "");
+      }
+      let menusJson = [
+        {
+          name: "启动引擎",
+          action: ENGINE_KERNEL_MENU[values?.engineKernel - 1],
+          icons: "working.png",
+        },
+        ...tmp,
+      ];
+      window.node.writeFileSync(`${file}/config/menus.json`, JSON.stringify(menusJson, null, "\t"));
     });
   };
-  const initMenu = async () => {
-    const menuScript = await post(apis.scriptMenuByProject, { project: project?._id });
-    detailForm.setFieldsValue({ engineKernel: menuScript?.engineKernel, menus: menuScript?.menus });
+  const initForm = () => {
+    const file = window.node.join("/public/project");
+    if (window.node.existsSync(`${file}/config`)) {
+      const menuData = JSON.parse(window.node.readFileSync(`${file}/config/menus.json`));
+      const engineActionIndex = lodash.findIndex(ENGINE_KERNEL_MENU, menuData?.[0]?.action);
+      let menuTemp = { engineKernel: engineActionIndex === -1 ? "" : engineActionIndex + 1, menus: [] };
+      let menus = [];
+      menuData.map((menu, index) => {
+        if (index !== 0) {
+          menus.push(menu);
+        }
+      });
+      menuTemp.menus = menus;
+      detailForm.setFieldsValue(menuTemp);
+    }
   };
 
   return (

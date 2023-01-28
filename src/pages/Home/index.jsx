@@ -15,11 +15,6 @@ const HomeIndex = () => {
   const [currentKey, setCurrentKey, currentKeyRef] = useStateRef("item-1");
   const navigator = useNavigate();
 
-  const logout = () => {
-    removeStorage("token");
-    removeStorage("userInfo");
-    navigator("/");
-  };
   const clickMenu = ({ item, key }) => {
     setCurrentKey(key);
     navigator(item?.props?.path);

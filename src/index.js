@@ -5,7 +5,7 @@ import { ConfigProvider } from "antd";
 import locale from "antd/locale/zh_CN";
 import dayjs from "dayjs";
 import "dayjs/locale/zh-cn";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { HashRouter, Route, Routes } from "react-router-dom";
 import Home from "../src/pages/Home";
 import { RecoilRoot } from "recoil";
 import "../src/assets/css/reset.css";
@@ -24,13 +24,13 @@ root.render(
   <React.StrictMode>
     <RecoilRoot>
       <ConfigProvider locale={locale} form={{ validateMessages }} theme={theme}>
-        <BrowserRouter>
+        <HashRouter>
           <Routes>
             <Route path="/" element={<Home />}>
-              <Route index path="/scriptMenu" element={<ScriptMenu />} />
+              <Route index element={<ScriptMenu />} />
             </Route>
           </Routes>
-        </BrowserRouter>
+        </HashRouter>
       </ConfigProvider>
     </RecoilRoot>
   </React.StrictMode>
